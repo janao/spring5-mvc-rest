@@ -72,24 +72,45 @@ public class CustomerServiceTest {
 	}
 	
 	 @Test
-	    public void createNewCustomer() throws Exception {
+    public void createNewCustomer() throws Exception {
 
-	        //given
-	        CustomerDTO customerDTO = new CustomerDTO();
-	        customerDTO.setFirstname("Jim");
+        //given
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setFirstname("Jim");
 
-	        Customer savedCustomer = new Customer();
-	        savedCustomer.setFirstname(customerDTO.getFirstname());
-	        savedCustomer.setLastname(customerDTO.getLastname());
-	        savedCustomer.setId(1l);
+        Customer savedCustomer = new Customer();
+        savedCustomer.setFirstname(customerDTO.getFirstname());
+        savedCustomer.setLastname(customerDTO.getLastname());
+        savedCustomer.setId(1l);
 
-	        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
 
-	        //when
-	        CustomerDTO savedDto = customerService.createNewCustomer(customerDTO);
+        //when
+        CustomerDTO savedDto = customerService.createNewCustomer(customerDTO);
 
-	        //then
-	        assertEquals(customerDTO.getFirstname(), savedDto.getFirstname());
-	        assertEquals("/api/v1/customer/1", savedDto.getCustomerUrl());
-	    }
+        //then
+        assertEquals(customerDTO.getFirstname(), savedDto.getFirstname());
+        assertEquals("/api/v1/customer/1", savedDto.getCustomerUrl());
+    }
+	 
+	 @Test
+	 public void saveCustomerByDTO() throws Exception {
+		//given
+		CustomerDTO customerDTO = new CustomerDTO();
+		customerDTO.setFirstname("Jim");
+		
+		Customer savedCustomer = new Customer();
+		savedCustomer.setFirstname(customerDTO.getFirstname());
+		savedCustomer.setLastname(customerDTO.getLastname());
+		savedCustomer.setId(1l);
+		
+		when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+		
+		//when
+        CustomerDTO savedDto = customerService.saveCustomerByDTO(1L, customerDTO);
+
+        //then
+        assertEquals(customerDTO.getFirstname(), savedDto.getFirstname());
+        assertEquals("/api/v1/customer/1", savedDto.getCustomerUrl());
+	 }
 }

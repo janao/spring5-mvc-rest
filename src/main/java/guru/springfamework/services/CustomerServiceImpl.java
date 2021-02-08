@@ -34,17 +34,54 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public CustomerDTO getCustomerById(Long id) {
-		return customerRepository.findById(id).map(c -> customerMapper.customerToCustomerDTO(c)).orElseThrow(() -> new RuntimeException());
+		return customerRepository.findById(id).map(c -> customerMapper.customerToCustomerDTO(c)).map(customerDTO -> {
+            //set API URL
+            customerDTO.setCustomerUrl("/api/v1/customer/" + id);
+            return customerDTO;
+        }).orElseThrow(() -> new RuntimeException());
 	}
 
 	@Override
 	public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
-		Customer savedCustomer = customerRepository.save(customerMapper.customerDTOToCustomer(customerDTO));
-		CustomerDTO returnDto = customerMapper.customerToCustomerDTO(savedCustomer);
+		
+		return saveAndReturnDTO(customerMapper.customerDTOToCustomer(customerDTO));
+	}
+
+	@Override
+	public CustomerDTO saveCustomerByDTO(Long id, CustomerDTO customerDTO) {
+		Customer customer = customerMapper.customerDTOToCustomer(customerDTO);
+		customer.setId(id);
+		
+		return saveAndReturnDTO(customer);
+	}
+	
+	private CustomerDTO saveAndReturnDTO(Customer customer) {
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerDTO returnDto = customerMapper.customerToCustomerDTO(savedCustomer);
 
         returnDto.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
 
         return returnDto;
-	}
+    }
 
+	@Override
+	public CustomerDTO patchCustomer(Long id, CustomerDTO customerDTO) {
+		return customerRepository.findById(id).map(customer -> {
+
+            if(customerDTO.getFirstname() != null){
+                customer.setFirstname(customerDTO.getFirstname());
+            }
+
+            if(customerDTO.getLastname() != null){
+                customer.setLastname(customerDTO.getLastname());
+            }
+
+            CustomerDTO returnDto = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
+
+            returnDto.setCustomerUrl("/api/v1/customer/" + id);
+
+            return returnDto;
+        }).orElseThrow(RuntimeException::new); //todo implement better exception handling;
+	}
 }
